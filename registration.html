@@ -1,0 +1,157 @@
+
+<html>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Verdana, sans-serif;
+  }
+  body {
+    background-color:blanchedalmond;
+  }
+  .box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 3rem;
+  }
+  .form {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: rgb(169, 153, 153);
+    width: 600px;
+    height: 500px;
+    box-shadow: 2px 4px 10px rgb(150, 128, 128);
+    border: 1px solid rgb(27, 3, 3);
+    border-radius: 20px;
+    padding: 20px;
+  }
+    </style>
+      <body>
+          <div class="box">
+          <form id="doo">
+              <label for="name">Name<span >*</span></label>
+              <input required type="text" id="name" name="name"  >
+              <br><br>
+              <label for="email">Email<span >*</span></label>
+              <input required type="email" id="email" name="email" >
+              <br><br>
+              <label for="password">Password<span >*</span></label>
+              <input  type="password" id="password" name="password" required>
+              <br><br>
+              <label for="dob">Date of Birth<span >*</span></label>
+              <input type="date" id="dob" name="dob" required>
+              <br><br>
+              <input type="checkbox" id="acceptTerms" name="acceptTerms">
+              <label for="acceptTerms">Accept Terms & Conditions</label>
+              <br><br>
+              <button class="button"  type="submit" ><h4>Submit</h4></button>
+              <br><br>
+             <div>
+              <h2 style="text-align:center;">Entries</h2>
+              <div id="entries"></div>
+             </div>
+          </form>
+          </div>
+      </body>
+    <script>
+      const dob = document.getElementById("dob");
+dob.addEventListener("change", () => validateDob(dob));
+function validateDob(dob){
+let Date1=dob.value.split("-");
+let year=Date1[0];
+let month=Date1[1];
+let date=Date1[2];
+let birthdate = new Date(year, month, date);
+let today = new Date();
+let currentYear= today.getFullYear();
+let birthYear=birthdate.getFullYear()
+let age = currentYear - birthYear;
+let monthDiff = today.getMonth() - birthdate.getMonth();
+if ((today.getDate() < birthdate.getDate())||monthDiff<0) 
+{
+age--;
+}
+if (age<18 || age>55) 
+{
+dob.setCustomValidity("Your age is not between 18 and 55");
+dob.reportValidity();
+}
+else
+{
+dob.setCustomValidity("");
+}
+}
+let email=document.getElementById("email");
+email.addEventListener('input',() => validate(email));
+function validate(element){
+if(element.validity.typeMismatch){
+    element.setCustomValidity("Invalid email");
+    element.reportValidity();
+    }
+    else{
+    element.setCustomValidity('');
+    }
+}           
+let userform=document.getElementById('doo');
+const retriveEntries=()=>{
+    let entries=localStorage.getItem("entries");
+    if(entries){
+        entries=JSON.parse(entries);
+    }
+    else{
+        entries=[];
+    }
+    return entries;
+}
+let userEntries=retriveEntries();
+
+const displayEntries=()=>{
+    let entries=retriveEntries();
+    const tableEntries=entries.map((entry)=>{
+    const name=`<td>${entry.name}</td>`;
+    const email=`<td>${entry.email}</td>`;
+    const password=`<td>${entry.password}</td>`;
+    const dob=`<td >${entry.dob}</td>`;
+    const accept=`<td>${entry.acceptedTermsAndCondition}</td>`;
+    const row=`<tr>${name} ${email} ${password} ${dob} ${accept}</tr>`;
+    return row;
+    }).join("\n");
+    const table=`<table border="2">
+    <tr>
+    <th>Name</th>
+    <th>Email</th>
+    <th >Password</th>
+    <th>Dob</th>
+    <th>Accepted terms?</th>
+    </tr>
+    ${tableEntries}</table>`;
+    let details=document.getElementById("entries");
+    details.innerHTML=table;
+}
+
+const saveUserForm=(event)=>{
+     event.preventDefault();
+     const name=document.getElementById("name").value;
+     const email=document.getElementById("email").value;
+     const password=document.getElementById("password").value;
+     const dob=document.getElementById("dob").value;
+
+     const acceptedTermsAndCondition=document.getElementById("acceptTerms").checked;
+     const entry={
+        name,
+        email,
+        password,
+        dob,
+        acceptedTermsAndCondition
+     };
+     userEntries.push(entry);
+     localStorage.setItem("entries",JSON.stringify(userEntries));
+     displayEntries();
+}
+userform.addEventListener("submit",saveUserForm);
+displayEntries();
+    </script>
+</html>
